@@ -1,0 +1,33 @@
+{
+    "name": "shanerutter/laravel-admin-email-two-factor",
+    "description": "Add email based two factor authentication to laravel-admin",
+    "type": "library",
+    "keywords": ["laravel-admin", "extension"],
+    "homepage": "https://github.com/shanerutter/laravel-admin-email-two-factor",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Shane Rutter",
+            "email": "shane@shanerutter.co.uk"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0",
+        "encore/laravel-admin": "~1.6"
+    },
+    "require-dev": {
+
+    },
+    "autoload": {
+        "psr-4": {
+            "Shanerutter\\LaravelAdminEmailTwoFactor\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Shanerutter\\LaravelAdminEmailTwoFactor\\AuthAttemptsServiceProvider"
+            ]
+        }
+    }
+}
