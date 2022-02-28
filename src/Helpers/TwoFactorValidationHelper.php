@@ -4,8 +4,10 @@ namespace Shanerutter\LaravelAdminEmailTwoFactor\Helpers;
 
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
+use Shanerutter\LaravelAdminEmailTwoFactor\AuthEmailTwoFactor;
 use Shanerutter\LaravelAdminEmailTwoFactor\Mail\TwoFactorCode;
 
 class TwoFactorValidationHelper
@@ -15,6 +17,12 @@ class TwoFactorValidationHelper
     {
         // Get session data
         $fa = Session::get('2fa');
+
+        // Remember me cookie
+        if (self::twoFactorCheckCookies()) {
+            Session::put('2fa', ['completed' => true]);
+            return true;
+        }
 
         // Data is missing
         if (empty($fa)) {
@@ -32,7 +40,7 @@ class TwoFactorValidationHelper
 
     public static function twoFactorGenerateCode(Administrator $admin): int
     {
-        $code = rand(100000, 999999);
+        $code = rand(pow(10, AuthEmailTwoFactor::config('pinLength')-1), pow(10, AuthEmailTwoFactor::config('pinLength'))-1);;
 
         Session::put('2fa', [
             'completed' => false,
@@ -68,10 +76,58 @@ class TwoFactorValidationHelper
             }
 
             Session::put('2fa', ['completed' => true]);
+            self::twoFactorSetCookies();
+
             return true;
         }
 
         return false;
     }
+
+
+
+
+
+
+
+    private static function twoFactorCheckCookies(): bool
+    {
+        // Get cookie contents
+        $contents = Cookie::get(self::twoFactorCookieName(), null);
+        if (empty($contents) || $contents != self::twoFactorCookieContents()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static function twoFactorSetCookies(): void
+    {
+        Cookie::queue(cookie(self::twoFactorCookieName(), self::twoFactorCookieContents(), 1440 * AuthEmailTwoFactor::config('rememberDays')));
+    }
+
+    private static function twoFactorCookieName(): string
+    {
+        return '2fa-remember-admin-' . auth('admin')->id();
+    }
+
+    private static function twoFactorCookieContents(): string
+    {
+        $string = 'uE7ZJpjchdb5JINsniMpJbmlLrpp3rGzEFmh6NPAOgHvfqaIBBPPtoS6'; // Change to force everyone to complete 2fa again
+        $string .= '_admin_';
+        $string .= '_' . auth('admin')->id() . '_';
+        $string .= '_' . md5(request()->userAgent()) . '_';
+        return $string;
+    }
+
+
+
+
+
+
+
+
+
+
 
 }

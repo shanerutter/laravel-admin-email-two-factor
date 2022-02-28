@@ -18,12 +18,17 @@ class AuthAttemptsServiceProvider extends ServiceProvider
             return;
         }
 
+        // Migrations
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        // Disabled
+        if (!AuthEmailTwoFactor::config('enable')) {
+            return;
+        }
+
         // Register middleware
         $router->aliasMiddleware('admin.auth.2fa.email', AuthAdminEmailTwoFactor::class);
         $router->pushMiddlewareToGroup('admin', 'admin.auth.2fa.email');
-
-        // Migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
         if ($views = $extension->views()) {
             $this->loadViewsFrom($views, AuthEmailTwoFactor::$group);

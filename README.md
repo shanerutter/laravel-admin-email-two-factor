@@ -17,6 +17,26 @@ Add email address field to admin users table.
 php artisan migrate
 ```
 
+### Configuration
+
+In the extensions section of the `config/admin.php` file, add configurations
+```
+'extensions' => [
+    'auth-email-two-factor' => [
+        'enable' => (bool)env('ADMIN_AUTH_EMAIL_TWO_FACTOR', true),
+        'pinLength' => (int)env('ADMIN_AUTH_EMAIL_TWO_FACTOR_PIN_LENGTH', 6),
+        'rememberDays' => (bool)env('ADMIN_AUTH_EMAIL_TWO_FACTOR_REMEMBER_DAYS', 1),
+    ]
+]
+```
+
+In the `.env` file, add configurations
+```
+ADMIN_AUTH_EMAIL_TWO_FACTOR=true
+ADMIN_AUTH_EMAIL_TWO_FACTOR_PIN_LENGTH=6
+ADMIN_AUTH_EMAIL_TWO_FACTOR_REMEMBER_DAYS=1
+```
+
 ### License
 
 Licensed under [The MIT License (MIT)](LICENSE).
